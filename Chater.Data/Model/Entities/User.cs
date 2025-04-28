@@ -10,8 +10,8 @@ namespace Chater.Data.Model.Entities
         public string Email { get; set; } = null!;
         public string PasswordHash { get; set; } = null!;
         public DateTime CreatedAt { get; set; }
-        public string ProfileAvatarUrl { get; set; } = null!;
-        public string Bio { get; set; } = string.Empty;
+        public string? ProfileAvatarUrl { get; set; }
+        public string? Bio { get; set; } = string.Empty;
 
         // Navigation properties
         public virtual ICollection<Message> SentMessages { get; set; } = new List<Message>();
