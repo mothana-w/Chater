@@ -39,10 +39,15 @@ builder.Services.AddOptions<JwtOptions>()
     .Bind(configuration.GetSection("Jwt"))
     .ValidateDataAnnotations()
     .ValidateOnStart();
+builder.Services.AddOptions<UserOptions>()
+    .Bind(configuration.GetSection("User"))
+    .ValidateDataAnnotations()
+    .ValidateOnStart();
 
 builder.Services.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped<IServiceResultFactory, ServiceResultFactory>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IChatRoomService, ChatRoomService>();
 
 builder.Services.AddEntityFrameworkNpgsql().AddDbContext<AppDbContext>(opts => {
     opts.UseNpgsql(constr);
