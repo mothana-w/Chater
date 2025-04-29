@@ -39,6 +39,25 @@ public class ChatRoomService
     _logger.LogInformation("Finished chat room creation.");
     return _resFactory.Success();
   }
+
+  public async Task<ServiceResult> DeleteRoom(int uid, string roomName)
+  {
+    _logger.LogInformation("Started chat room deletion.");
+
+    roomName = roomName.Trim().Normalize();
+
+    var room = await _roomRepo.GetSingleAsync(r => r.Name.Equals(roomName));
+    if (room is null)
+      return _resFactory.Failure($"No such room with room name \"{roomName}\"", StatusCodes.Status404NotFound);
+    
+    if (room.CreatedById != uid)
+      return _resFactory.Failure(string.Empty, StatusCodes.Status403Forbidden);
+    
+    await _roomRepo.RemoveAsync(room);
+    _logger.LogInformation("Finished chat room deletion.");
+    return _resFactory.Success();
+  }
+
   private ServiceResult CheckRoomName(string name){
     int nameMaxLengthInDb = 128;
 

@@ -12,4 +12,6 @@ public interface IBaseRepository<T> where T : class
   Task<bool> AnyAsync(Expression<Func<T, bool>> expression);
   Task AddAsync(T Entity);
   IQueryable<T> Where(Expression<Func<T, bool>> expression);
+
+  Task RemoveAsync(T target);
 }

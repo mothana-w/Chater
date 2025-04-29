@@ -18,5 +18,10 @@ public class BaseRepository<T>(AppDbContext _dbctx) : IBaseRepository<T> where T
     await _dbctx.SaveChangesAsync();
   }
 
+  public async Task RemoveAsync(T target){
+    _dbctx.Set<T>().Remove(target);
+    await _dbctx.SaveChangesAsync();
+  }
+
   public IQueryable<T> Where(Expression<Func<T, bool>> expression) => _dbctx.Set<T>().Where(expression);
 }

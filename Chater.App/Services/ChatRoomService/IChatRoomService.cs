@@ -4,4 +4,5 @@ using Chater.Data.DTOs;
 public interface IChatRoomService
 {
   Task<ServiceResult> CreateRoom(int uid, ChatRoomRequestDto dto);
+  Task<ServiceResult> DeleteRoom(int uid, string roomName);
 }
