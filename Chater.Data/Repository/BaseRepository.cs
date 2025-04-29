@@ -17,4 +17,6 @@ public class BaseRepository<T>(AppDbContext _dbctx) : IBaseRepository<T> where T
     await _dbctx.Set<T>().AddAsync(entity);
     await _dbctx.SaveChangesAsync();
   }
+
+  public IQueryable<T> Where(Expression<Func<T, bool>> expression) => _dbctx.Set<T>().Where(expression);
 }

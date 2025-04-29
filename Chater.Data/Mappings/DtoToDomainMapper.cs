@@ -1,3 +1,5 @@
+using System.Reflection.Metadata.Ecma335;
+using Chater.Data.DTOs;
 using Chater.Data.Model.DTOs;
 using Chater.Data.Model.Entities;
 
@@ -12,5 +14,12 @@ public static class DtoToDomainMapper
       CreatedAt = DateTime.UtcNow,
     };
     return user;
+  }
+  public static Room MapToRoom(this ChatRoomRequestDto dto){
+    return new () {
+      Name = dto.Name,
+      Description = dto.Description,
+      CreatedAt = DateTime.UtcNow
+    };
   }
 }
