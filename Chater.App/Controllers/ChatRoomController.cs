@@ -12,6 +12,13 @@ namespace Chater.App.Controllers;
 [Authorize]
 public class ChatRoomController(IChatRoomService _roomSrvc) : ControllerBase
 {
+  [HttpGet]
+  public ActionResult<IEnumerable<ChatRoomResponseDto>> GetOwned(){
+    int uid = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    var result = _roomSrvc.GetOwned(uid);
+    return Ok(result);
+  }
+
   [HttpPost]
   public async Task<IActionResult> Create([FromBody] ChatRoomRequestDto dto){
     int uid = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
