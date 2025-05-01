@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Text.RegularExpressions;
 
 using Chater.App.Services;
@@ -56,6 +57,18 @@ public class ChatRoomService
     await _roomRepo.RemoveAsync(room);
     _logger.LogInformation("Finished chat room deletion.");
     return _resFactory.Success();
+  }
+
+  public IEnumerable<ChatRoomResponseDto> GetOwned(int uid)
+  {
+    var rawRooms = _roomRepo.GetAll(r => r.CreatedById == uid);
+    var dtos = rawRooms.Select(r => 
+    new ChatRoomResponseDto{
+      Name = r.Name,
+      Description = r.Description,
+      AvatarUrl = r.RoomAvatarUrl ?? string.Empty
+    });
+    return dtos;
   }
 
   private ServiceResult CheckRoomName(string name){

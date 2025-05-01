@@ -8,7 +8,7 @@ namespace Chater.Data.Repository;
 public class BaseRepository<T>(AppDbContext _dbctx) : IBaseRepository<T> where T : class
 {
   public async Task GetByIdAsync<TPKey>(TPKey id) => await _dbctx.Set<T>().FindAsync(id);
-  public IQueryable<T> Get(Expression<Func<T, bool>> expression) => _dbctx.Set<T>().Where(expression);
+  public IEnumerable<T> GetAll(Expression<Func<T, bool>> expression) => _dbctx.Set<T>().Where(expression);
   public async Task<T?> GetFirstAsync(Expression<Func<T, bool>> expression) => await _dbctx.Set<T>().FirstOrDefaultAsync(expression);
   public async Task<T?> GetSingleAsync(Expression<Func<T, bool>> expression) => await _dbctx.Set<T>().SingleOrDefaultAsync(expression);
 
