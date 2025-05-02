@@ -5,6 +5,7 @@ using Chater.Data.Repository;
 using Chater.Options;
 using Chater.Services;
 using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -77,6 +78,19 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+app.UseExceptionHandler(errApp => {
+    errApp.Run(async ctx => {
+        ctx.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        ctx.Response.ContentType = "applications/json";
+
+        var exception = ctx.Features.Get<IExceptionHandlerPathFeature>()?.Error;
+
+        var logger = ctx.RequestServices.GetRequiredService<ILogger<Program>>();
+        logger.LogError(exception, "Unhandled Exception Occurred");
+
+        await ctx.Response.WriteAsJsonAsync("Something went wrong processing your request, please try again later.");
+    });
+});
 
 app.UseHttpsRedirection();
 
