@@ -5,7 +5,7 @@ namespace Chater.Data.Repository;
 
 public interface IBaseRepository<T> where T : class
 {
-  Task GetByIdAsync<TPKey>(TPKey id);
+  Task<T?> GetByIdAsync<TPKey>(TPKey id);
   IEnumerable<T> GetAll(Expression<Func<T, bool>> expression);
   Task<T?> GetFirstAsync(Expression<Func<T, bool>> expression);
   Task<T?> GetSingleAsync(Expression<Func<T, bool>> expression);
