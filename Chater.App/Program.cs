@@ -3,6 +3,7 @@ using Chater.App.Services;
 using Chater.Data.Model;
 using Chater.Data.Repository;
 using Chater.Options;
+using Chater.Hubs;
 using Chater.Services;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -117,4 +118,7 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+app.MapHub<ChatHub>("/chat", opts => {
+    opts.CloseOnAuthenticationExpiration = true;
+});
 app.Run();
