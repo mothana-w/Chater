@@ -5,6 +5,7 @@ using Chater.Data.Repository;
 using Chater.Options;
 using Chater.Services;
 using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -28,7 +29,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
         builder =>
         {
-            builder.WithOrigins("http://127.0.0.1:5500")
+            builder.WithOrigins("http://localhost:5173")
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials();
@@ -66,6 +67,20 @@ builder.Services.AddAuthentication()
         ValidAudience = jwtOpts.Audience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOpts.SigningKey))
     };
+    opts.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken))// && StartsWithSegments(<>)
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 builder.Services.AddAuthorization();
 
@@ -91,6 +106,10 @@ app.UseExceptionHandler(errApp => {
         await ctx.Response.WriteAsJsonAsync("Something went wrong processing your request, please try again later.");
     });
 });
+
+app.UseDefaultFiles();
+
+app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
