@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using Chater.Data.DTOs;
 using Chater.Data.Mappings;
 using Chater.Data.Model.Entities;
@@ -13,6 +14,7 @@ public class ChatHub
   ILogger<ChatHub> _logger
   , IBaseRepository<Room> _roomReop
   , IBaseRepository<Message> _msgReop
+  , IBaseRepository<RoomMember> _roomMemberReop
 ) : Hub
 {
   public async Task<HubResult<IEnumerable<Message>>> JoinRoom(string roomName){
@@ -27,6 +29,22 @@ public class ChatHub
         , IsSuccess = false
       };
     
+    var roomMember =  await _roomMemberReop.GetSingleAsync(rm => rm.MemeberId.Equals(uid) && rm.RoomId.Equals(room.Id));
+    var isJoined = roomMember is not null;
+    if (isJoined){
+      return new HubResult<IEnumerable<Message>> {
+        Code = "ALREADY_JOINED"
+        , Message = $"user is already a member in {roomName}"
+        , IsSuccess = false
+      };
+    }
+
+    var newRoomMember = new RoomMember{
+      MemeberId = uid,
+      RoomId = room.Id,
+      JoinedAt = DateTime.UtcNow
+    };
+    await _roomMemberReop.AddAsync(newRoomMember);
     var messages = _msgReop.GetAll(m => m.RoomId == room.Id);
 
     return new HubResult<IEnumerable<Message>> {
