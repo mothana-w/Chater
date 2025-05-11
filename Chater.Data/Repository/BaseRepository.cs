@@ -9,6 +9,16 @@ public class BaseRepository<T>(AppDbContext _dbctx) : IBaseRepository<T> where T
 {
   public async Task<T?> GetByIdAsync<TPKey>(TPKey id) => await _dbctx.Set<T>().FindAsync(id);
   public IEnumerable<T> GetAll(Expression<Func<T, bool>> expression) => _dbctx.Set<T>().Where(expression);
+  public IEnumerable<T> GetAll(Expression<Func<T, bool>> expression, string[] includes)
+  {
+    IQueryable<T> query = _dbctx.Set<T>();
+
+    foreach (var include in includes)
+      query = query.Include(include);
+    
+    return query.Where(expression);
+  }
+
   public async Task<T?> GetFirstAsync(Expression<Func<T, bool>> expression) => await _dbctx.Set<T>().FirstOrDefaultAsync(expression);
   public async Task<T?> GetSingleAsync(Expression<Func<T, bool>> expression) => await _dbctx.Set<T>().SingleOrDefaultAsync(expression);
 
@@ -24,4 +34,5 @@ public class BaseRepository<T>(AppDbContext _dbctx) : IBaseRepository<T> where T
   }
 
   public IQueryable<T> Where(Expression<Func<T, bool>> expression) => _dbctx.Set<T>().Where(expression);
+
 }
