@@ -66,6 +66,20 @@ public class ChatRoomService
     return _resFactory.Success();
   }
 
+  public async Task<ServiceResult<ChatRoomResponseDto>> GetByName(string roomName)
+  {
+    var rawRoom = await _roomRepo.GetSingleAsync(r => r.Name.Equals(roomName));
+    if (rawRoom is null)
+      return _resFactory.Failure<ChatRoomResponseDto>($"No such room with room name \"{roomName}\"", StatusCodes.Status404NotFound);
+
+    var dto = new ChatRoomResponseDto{
+      Name = rawRoom.Name,
+      Description = rawRoom.Description,
+      AvatarUrl = rawRoom.RoomAvatarUrl ?? string.Empty
+    };
+    return _resFactory.Success(dto);
+  }
+
   public IEnumerable<ChatRoomResponseDto> GetOwned(int uid)
   {
     var rawRooms = _roomRepo.GetAll(r => r.CreatedById == uid);
