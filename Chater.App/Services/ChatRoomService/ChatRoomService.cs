@@ -37,6 +37,12 @@ public class ChatRoomService
     var room = dto.MapToRoom();
     room.CreatedById = uid;
     await _roomRepo.AddAsync(room);
+    RoomMember roomMember = new(){
+      MemeberId = uid,
+      RoomId = room.Id,
+      JoinedAt = DateTime.UtcNow
+    };
+    await _roomMemberRepo.AddAsync(roomMember);
 
     _logger.LogInformation("Finished chat room creation.");
     return _resFactory.Success();
@@ -58,6 +64,21 @@ public class ChatRoomService
     await _roomRepo.RemoveAsync(room);
     _logger.LogInformation("Finished chat room deletion.");
     return _resFactory.Success();
+  }
+
+
+  public async Task<ServiceResult<ChatRoomResponseDto>> GetByName(string roomName)
+  {
+    var rawRoom = await _roomRepo.GetSingleAsync(r => r.Name.Equals(roomName));
+    if (rawRoom is null)
+      return _resFactory.Failure<ChatRoomResponseDto>($"No such room with room name \"{roomName}\"", StatusCodes.Status404NotFound);
+
+    var dto = new ChatRoomResponseDto{
+      Name = rawRoom.Name,
+      Description = rawRoom.Description,
+      AvatarUrl = rawRoom.RoomAvatarUrl ?? string.Empty
+    };
+    return _resFactory.Success(dto);
   }
 
   public IEnumerable<ChatRoomResponseDto> GetJoined(int uid)
