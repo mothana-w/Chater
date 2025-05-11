@@ -19,6 +19,14 @@ public class ChatRoomController(IChatRoomService _roomSrvc) : ControllerBase
     return Ok(result);
   }
 
+  [HttpGet("{roomName}")]
+  public async Task<ActionResult<ChatRoomResponseDto>> GetByName([FromRoute] string roomName){
+    var result = await _roomSrvc.GetByName(roomName);
+    if (result.StatusCode.Equals(StatusCodes.Status404NotFound))
+      return NotFound(result.ErrorMessage);
+    return Ok(result.Data);
+  }
+
   [HttpPost]
   public async Task<IActionResult> Create([FromBody] ChatRoomRequestDto dto){
     int uid = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
