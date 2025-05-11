@@ -14,6 +14,7 @@ public class ChatRoomService
   , IServiceResultFactory _resFactory
   , ILogger<ChatRoomService> _logger
   , IOptions<UserOptions> _userOpts
+  , IBaseRepository<RoomMember> _roomMemberRepo
 ) : IChatRoomService
 {
   public async Task<ServiceResult> CreateRoom(int uid, ChatRoomRequestDto dto)
@@ -36,6 +37,12 @@ public class ChatRoomService
     var room = dto.MapToRoom();
     room.CreatedById = uid;
     await _roomRepo.AddAsync(room);
+    RoomMember roomMember = new(){
+      MemeberId = uid,
+      RoomId = room.Id,
+      JoinedAt = DateTime.UtcNow
+    };
+    await _roomMemberRepo.AddAsync(roomMember);
 
     _logger.LogInformation("Finished chat room creation.");
     return _resFactory.Success();
