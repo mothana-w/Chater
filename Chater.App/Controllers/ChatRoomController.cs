@@ -12,10 +12,16 @@ namespace Chater.App.Controllers;
 [Authorize]
 public class ChatRoomController(IChatRoomService _roomSrvc) : ControllerBase
 {
-  [HttpGet]
+  [HttpGet("/owned")]
   public ActionResult<IEnumerable<ChatRoomResponseDto>> GetOwned(){
     int uid = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
     var result = _roomSrvc.GetOwned(uid);
+    return Ok(result);
+  }
+  [HttpGet("/joined")]
+  public ActionResult<IEnumerable<ChatRoomResponseDto>> GetJoined(){
+    int uid = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+    var result = _roomSrvc.GetJoined(uid);
     return Ok(result);
   }
 

@@ -14,6 +14,7 @@ public class ChatRoomService
   , IServiceResultFactory _resFactory
   , ILogger<ChatRoomService> _logger
   , IOptions<UserOptions> _userOpts
+  , IBaseRepository<RoomMember> _roomMemberRepo
 ) : IChatRoomService
 {
   public async Task<ServiceResult> CreateRoom(int uid, ChatRoomRequestDto dto)
@@ -59,17 +60,29 @@ public class ChatRoomService
     return _resFactory.Success();
   }
 
-  public IEnumerable<ChatRoomResponseDto> GetOwned(int uid)
+  public IEnumerable<ChatRoomResponseDto> GetJoined(int uid)
   {
-    var rawRooms = _roomRepo.GetAll(r => r.CreatedById == uid);
+    var rawRooms = _roomMemberRepo.GetAll(rm => rm.MemeberId.Equals(uid), [nameof(Room)]);
     var dtos = rawRooms.Select(r => 
     new ChatRoomResponseDto{
-      Name = r.Name,
-      Description = r.Description,
-      AvatarUrl = r.RoomAvatarUrl ?? string.Empty
+      Name = r.Room.Name,
+      Description = r.Room.Description,
+      AvatarUrl = r.Room.RoomAvatarUrl ?? string.Empty
     });
     return dtos;
   }
+
+  public IEnumerable<ChatRoomResponseDto> GetOwned(int uid)
+{
+  var rawRooms = _roomRepo.GetAll(r => r.CreatedById == uid);
+  var dtos = rawRooms.Select(r => 
+  new ChatRoomResponseDto{
+    Name = r.Name,
+    Description = r.Description,
+    AvatarUrl = r.RoomAvatarUrl ?? string.Empty
+  });
+  return dtos;
+}
 
   private ServiceResult CheckRoomName(string name){
     int nameMaxLengthInDb = 128;
