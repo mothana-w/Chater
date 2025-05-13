@@ -12,27 +12,27 @@ namespace Chater.Hubs;
 public class ChatHub
 (
   ILogger<ChatHub> _logger
-  , IBaseRepository<Room> _roomReop
-  , IBaseRepository<Message> _msgReop
-  , IBaseRepository<RoomMember> _roomMemberReop
+  , IBaseRepository<Room> _roomRepo
+  , IBaseRepository<Message> _msgRepo
+  , IBaseRepository<RoomMember> _roomMemberRepo
 ) : Hub
 {
-  public async Task<HubResult<IEnumerable<Message>>> JoinRoom(string roomName){
+  public async Task<HubResult<IEnumerable<MessageResponseDto>>> JoinRoom(string roomName){
     int uid = int.Parse(Context.UserIdentifier!);
     _logger.LogInformation("{user-with-id} joining {room-name}",uid, roomName);
 
-    var room = await _roomReop.GetSingleAsync(r => r.Name.Equals(roomName));
+    var room = await _roomRepo.GetSingleAsync(r => r.Name.Equals(roomName));
     if (room is null)
-      return new HubResult<IEnumerable<Message>> {
+      return new HubResult<IEnumerable<MessageResponseDto>> {
         Code = "ROOM_NOT_FOUND"
         , Message = $"{roomName} is not an existing room"
         , IsSuccess = false
       };
     
-    var roomMember =  await _roomMemberReop.GetSingleAsync(rm => rm.MemeberId.Equals(uid) && rm.RoomId.Equals(room.Id));
+    var roomMember =  await _roomMemberRepo.GetSingleAsync(rm => rm.MemeberId.Equals(uid) && rm.RoomId.Equals(room.Id));
     var isJoined = roomMember is not null;
     if (isJoined){
-      return new HubResult<IEnumerable<Message>> {
+      return new HubResult<IEnumerable<MessageResponseDto>> {
         Code = "ALREADY_JOINED"
         , Message = $"user is already a member in {roomName}"
         , IsSuccess = false
@@ -44,13 +44,13 @@ public class ChatHub
       RoomId = room.Id,
       JoinedAt = DateTime.UtcNow
     };
-    await _roomMemberReop.AddAsync(newRoomMember);
-    var messages = _msgReop.GetAll(m => m.RoomId == room.Id);
+    await _roomMemberRepo.AddAsync(newRoomMember);
+    var messages = _msgRepo.GetAll(m => m.RoomId == room.Id);
 
-    return new HubResult<IEnumerable<Message>> {
+    return new HubResult<IEnumerable<MessageResponseDto>> {
       Code = "JOIN_SUCCESS"
       , IsSuccess = true
-      , Data = messages
+      , Data = messages.Select(m => m.MapToDto())
     };
   }
 }
