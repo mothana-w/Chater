@@ -12,21 +12,21 @@ namespace Chater.App.Controllers;
 [Authorize]
 public class ChatRoomController(IChatRoomService _roomSrvc) : ControllerBase
 {
-  [HttpGet("/owned")]
+  [HttpGet("owned")]
   public ActionResult<IEnumerable<ChatRoomResponseDto>> GetOwned(){
     int uid = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
     var result = _roomSrvc.GetOwned(uid);
     return Ok(result);
   }
-  [HttpGet("/joined")]
+  [HttpGet("joined")]
   public ActionResult<IEnumerable<ChatRoomResponseDto>> GetJoined(){
     int uid = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
     var result = _roomSrvc.GetJoined(uid);
     return Ok(result);
   }
 
-  [HttpGet("{roomName}")]
-  public async Task<ActionResult<ChatRoomResponseDto>> GetByName([FromRoute] string roomName){
+  [HttpGet]
+  public async Task<ActionResult<ChatRoomResponseDto>> GetByName([FromQuery] string roomName){
     var result = await _roomSrvc.GetByName(roomName);
     if (result.StatusCode.Equals(StatusCodes.Status404NotFound))
       return NotFound(result.ErrorMessage);
