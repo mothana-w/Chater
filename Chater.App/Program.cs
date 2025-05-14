@@ -51,6 +51,7 @@ builder.Services.AddTransient(typeof(IBaseRepository<>), typeof(BaseRepository<>
 builder.Services.AddScoped<IServiceResultFactory, ServiceResultFactory>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IChatRoomService, ChatRoomService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
 
 builder.Services.AddEntityFrameworkNpgsql().AddDbContext<AppDbContext>(opts => {
     opts.UseNpgsql(constr);
