@@ -8,6 +8,7 @@ public interface IBaseRepository<T> where T : class
   Task<T?> GetByIdAsync<TPKey>(TPKey id);
   IEnumerable<T> GetAll(Expression<Func<T, bool>> expression);
   IEnumerable<T> GetAll(Expression<Func<T, bool>> expression, string[] includes);
+  Task<T?> GetFirstAsync(Expression<Func<T, bool>> expression, string[][] includes);
   Task<T?> GetFirstAsync(Expression<Func<T, bool>> expression);
   Task<T?> GetSingleAsync(Expression<Func<T, bool>> expression);
   Task<bool> AnyAsync(Expression<Func<T, bool>> expression);

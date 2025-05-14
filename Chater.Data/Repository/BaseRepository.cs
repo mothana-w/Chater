@@ -20,6 +20,16 @@ public class BaseRepository<T>(AppDbContext _dbctx) : IBaseRepository<T> where T
   }
 
   public async Task<T?> GetFirstAsync(Expression<Func<T, bool>> expression) => await _dbctx.Set<T>().FirstOrDefaultAsync(expression);
+  public async Task<T?> GetFirstAsync(Expression<Func<T, bool>> expression, string[][] includes) {
+    IQueryable<T> query = _dbctx.Set<T>();
+
+    for (int i = 0; i < includes.Count(); ++i){
+      string fullInclude = string.Join('.', includes[i]);
+      query = query.Include(fullInclude);
+    }
+
+    return await query.FirstOrDefaultAsync(expression);
+  }
   public async Task<T?> GetSingleAsync(Expression<Func<T, bool>> expression) => await _dbctx.Set<T>().SingleOrDefaultAsync(expression);
 
   public async Task<bool> AnyAsync(Expression<Func<T, bool>> expression) => await _dbctx.Set<T>().AnyAsync(expression);
