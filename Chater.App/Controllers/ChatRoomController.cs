@@ -1,6 +1,6 @@
 using System.Security.Claims;
+using Chater.App.Services;
 using Chater.Data.DTOs;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -10,7 +10,7 @@ namespace Chater.App.Controllers;
 [ApiController]
 [Route("api/chat-room")]
 [Authorize]
-public class ChatRoomController(IChatRoomService _roomSrvc) : ControllerBase
+public class ChatRoomController(IChatRoomService _roomSrvc, IMessageService _msgSrvc) : ControllerBase
 {
   [HttpGet("owned")]
   public ActionResult<IEnumerable<ChatRoomResponseDto>> GetOwned(){
@@ -56,5 +56,16 @@ public class ChatRoomController(IChatRoomService _roomSrvc) : ControllerBase
       return Forbid(BearerTokenDefaults.AuthenticationScheme);
 
     return Ok();
+  }
+
+  [HttpGet("{roomName}")]
+  public async Task<ActionResult<IEnumerable<MessageResponseDto>>> GetAll([FromRoute] string roomName){
+      int uid = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+      var result = await _msgSrvc.GetAll(uid, roomName);
+      if (result.StatusCode.Equals(StatusCodes.Status404NotFound))
+          return NotFound(result.ErrorMessage);
+      if (result.StatusCode.Equals(StatusCodes.Status403Forbidden))
+          return Forbid();
+      return Ok(result.Data);
   }
 }
